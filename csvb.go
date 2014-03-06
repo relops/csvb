@@ -2,7 +2,6 @@ package csvb
 
 import (
 	"encoding/csv"
-	"fmt"
 	"github.com/oleiade/reflections"
 	"io"
 	"reflect"

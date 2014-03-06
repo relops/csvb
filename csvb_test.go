@@ -46,22 +46,6 @@ func TestNullHandling(t *testing.T) {
 	runScenario(t, input, s, d)
 }
 
-func TestMissingDate(t *testing.T) {
-	header := []string{"n", "d", "c"}
-	row := []string{"foo", "", "NULL"}
-	input := [][]string{header, row}
-	s := make(map[string]string)
-	s["n"] = "Name"
-	s["d"] = "Date"
-	s["c"] = "Counter"
-	d := Destination{
-		Name:    "foo",
-		Counter: 0,
-		Date:    time.Date(2014, 4, 6, 10, 02, 21, 0, time.UTC),
-	}
-	runScenario(t, input, s, d)
-}
-
 func runScenario(t *testing.T, input [][]string, s map[string]string, expected interface{}) {
 	var buf bytes.Buffer
 	w := csv.NewWriter(&buf)
