@@ -59,9 +59,11 @@ func runScenario(t *testing.T, input [][]string, s map[string]string, expected i
 	opts := &Options{NullMarker: "NULL"}
 
 	b := NewBinder(&buf, opts)
-	b.ForEach(func(r Row) bool {
-		r.Bind(&d, s)
-		return true
+	b.ForEach(func(r Row) (bool, error) {
+		if err := r.Bind(&d, s); err != nil {
+			return false, err
+		}
+		return false, nil
 	})
 
 	assert.Equal(t, d, expected)

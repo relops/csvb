@@ -62,7 +62,7 @@ func (b *Binder) ReadRow() (Row, error) {
 	return Row{data: data}, nil
 }
 
-func (b *Binder) ForEach(f func(Row) bool) error {
+func (b *Binder) ForEach(f func(Row) (bool, error)) error {
 
 	for {
 		row, err := b.ReadRow()
@@ -71,7 +71,11 @@ func (b *Binder) ForEach(f func(Row) bool) error {
 		} else if err != nil {
 			return err
 		}
-		if !f(row) {
+		hasNext, err := f(row)
+		if err != nil {
+			return err
+		}
+		if !hasNext {
 			break
 		}
 	}
