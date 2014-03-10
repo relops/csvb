@@ -12,6 +12,7 @@ import (
 type Options struct {
 	Separator  rune
 	NullMarker string
+	TimeZone   *time.Location
 }
 
 type Binder struct {
@@ -22,6 +23,7 @@ type Binder struct {
 
 type Row struct {
 	data map[string]string
+	opts *Options
 }
 
 func NewBinder(reader io.Reader, opts *Options) *Binder {
@@ -35,6 +37,10 @@ func NewBinder(reader io.Reader, opts *Options) *Binder {
 			opts.Separator = ','
 		}
 		csv.Comma = opts.Separator
+	}
+
+	if opts.TimeZone == nil {
+		opts.TimeZone = time.UTC
 	}
 
 	header, _ := csv.Read()
@@ -59,7 +65,7 @@ func (b *Binder) ReadRow() (Row, error) {
 			data[k] = v
 		}
 	}
-	return Row{data: data}, nil
+	return Row{data: data, opts: b.opts}, nil
 }
 
 func (b *Binder) ForEach(f func(Row) (bool, error)) error {
@@ -115,7 +121,7 @@ func (r *Row) Bind(x interface{}, strategy map[string]string) error {
 						return err
 					}
 					if reflect.TypeOf(value) == reflect.TypeOf(time.Now()) {
-						date, err := time.Parse("2006-01-02 15:04:05", data)
+						date, err := time.ParseInLocation("2006-01-02 15:04:05", data, r.opts.TimeZone)
 						if err != nil {
 							return err
 						}

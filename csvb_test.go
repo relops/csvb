@@ -14,6 +14,26 @@ type Destination struct {
 	Counter int64
 }
 
+func TestTimezoneHandling(t *testing.T) {
+	header := []string{"n", "d", "c"}
+	row := []string{"foo", "2014-04-06 10:02:21", "4459813"}
+	input := [][]string{header, row}
+	s := make(map[string]string)
+	s["n"] = "Name"
+	s["d"] = "Date"
+	s["c"] = "Counter"
+
+	location, _ := time.LoadLocation("Europe/Stockholm")
+	opts := &Options{TimeZone: location}
+
+	d := Destination{
+		Name:    "foo",
+		Counter: 4459813,
+		Date:    time.Date(2014, 4, 6, 10, 02, 21, 0, location),
+	}
+	runScenarioWithOptions(t, input, s, d, opts)
+}
+
 func TestRowBinding(t *testing.T) {
 	header := []string{"n", "d", "c"}
 	row := []string{"foo", "2014-04-06 10:02:21", "4459813"}
@@ -47,6 +67,10 @@ func TestNullHandling(t *testing.T) {
 }
 
 func runScenario(t *testing.T, input [][]string, s map[string]string, expected interface{}) {
+	runScenarioWithOptions(t, input, s, expected, nil)
+}
+
+func runScenarioWithOptions(t *testing.T, input [][]string, s map[string]string, expected interface{}, opts *Options) {
 	var buf bytes.Buffer
 	w := csv.NewWriter(&buf)
 	for _, row := range input {
@@ -56,7 +80,9 @@ func runScenario(t *testing.T, input [][]string, s map[string]string, expected i
 
 	var d Destination
 
-	opts := &Options{NullMarker: "NULL"}
+	if opts == nil {
+		opts = &Options{NullMarker: "NULL"}
+	}
 
 	b := NewBinder(&buf, opts)
 	b.ForEach(func(r Row) (bool, error) {
