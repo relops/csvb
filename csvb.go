@@ -3,9 +3,11 @@ package csvb
 import (
 	"encoding/csv"
 	"errors"
+	"fmt"
 	"github.com/oleiade/reflections"
 	"io"
 	"reflect"
+	"speter.net/go/exp/math/dec/inf"
 	"strconv"
 	"time"
 )
@@ -13,6 +15,8 @@ import (
 var (
 	ErrNoCustomHeader = errors.New("missing custom header metadata")
 	ErrNoHeader       = errors.New("missing header metadata")
+	typeDec           = reflect.TypeOf(inf.NewDec(0, 0))
+	typeTime          = reflect.TypeOf(time.Now())
 )
 
 type Options struct {
@@ -137,13 +141,27 @@ func (r *Row) Bind(x interface{}, strategy map[string]string) error {
 					}
 					reflections.SetField(x, dest, i)
 				}
+			case reflect.Ptr:
+				{
+					value, err := reflections.GetField(x, dest)
+					if err != nil {
+						return err
+					}
+					if reflect.TypeOf(value) == typeDec {
+						dec, success := new(inf.Dec).SetString(data)
+						if !success {
+							fmt.Errorf("Could not parse inf.Dec: %s", data)
+						}
+						reflections.SetField(x, dest, dec)
+					}
+				}
 			case reflect.Struct:
 				{
 					value, err := reflections.GetField(x, dest)
 					if err != nil {
 						return err
 					}
-					if reflect.TypeOf(value) == reflect.TypeOf(time.Now()) {
+					if reflect.TypeOf(value) == typeTime {
 						date, err := time.ParseInLocation("2006-01-02 15:04:05", data, r.opts.TimeZone)
 						if err != nil {
 							return err

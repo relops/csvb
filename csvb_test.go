@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/csv"
 	"github.com/stretchr/testify/assert"
+	"speter.net/go/exp/math/dec/inf"
 	"testing"
 	"time"
 )
@@ -12,6 +13,7 @@ type Destination struct {
 	Name    string
 	Date    time.Time
 	Counter int64
+	Rating  *inf.Dec
 }
 
 func TestCustomHeader(t *testing.T) {
@@ -59,17 +61,19 @@ func TestTimezoneHandling(t *testing.T) {
 }
 
 func TestRowBinding(t *testing.T) {
-	header := []string{"n", "d", "c"}
-	row := []string{"foo", "2014-04-06 10:02:21", "4459813"}
+	header := []string{"n", "d", "c", "r"}
+	row := []string{"foo", "2014-04-06 10:02:21", "4459813", "1.55"}
 	input := [][]string{header, row}
 	s := make(map[string]string)
 	s["n"] = "Name"
 	s["d"] = "Date"
 	s["c"] = "Counter"
+	s["r"] = "Rating"
 	d := Destination{
 		Name:    "foo",
 		Counter: 4459813,
 		Date:    time.Date(2014, 4, 6, 10, 02, 21, 0, time.UTC),
+		Rating:  inf.NewDec(155, 2),
 	}
 	runScenario(t, input, s, d)
 }
