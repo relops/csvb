@@ -14,6 +14,30 @@ type Destination struct {
 	Counter int64
 }
 
+func TestCustomHeader(t *testing.T) {
+	header := map[int]string{
+		0: "n",
+		1: "d",
+		2: "c",
+	}
+	row := []string{"foo", "2014-04-06 10:02:21", "4459813"}
+	input := [][]string{row}
+	s := make(map[string]string)
+	s["n"] = "Name"
+	s["d"] = "Date"
+	s["c"] = "Counter"
+
+	opts := &Options{Header: header}
+
+	d := Destination{
+		Name:    "foo",
+		Counter: 4459813,
+		Date:    time.Date(2014, 4, 6, 10, 02, 21, 0, time.UTC),
+	}
+	runScenarioWithOptions(t, input, s, d, opts)
+
+}
+
 func TestTimezoneHandling(t *testing.T) {
 	header := []string{"n", "d", "c"}
 	row := []string{"foo", "2014-04-06 10:02:21", "4459813"}

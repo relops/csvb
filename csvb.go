@@ -13,6 +13,7 @@ type Options struct {
 	Separator  rune
 	NullMarker string
 	TimeZone   *time.Location
+	Header     map[int]string
 }
 
 type Binder struct {
@@ -43,11 +44,17 @@ func NewBinder(reader io.Reader, opts *Options) *Binder {
 		opts.TimeZone = time.UTC
 	}
 
-	header, _ := csv.Read()
+	var meta map[int]string
 
-	meta := make(map[int]string)
-	for i, col := range header {
-		meta[i] = col
+	if len(opts.Header) == 0 {
+		header, _ := csv.Read()
+
+		meta = make(map[int]string)
+		for i, col := range header {
+			meta[i] = col
+		}
+	} else {
+		meta = opts.Header
 	}
 
 	return &Binder{csv: csv, meta: meta, opts: opts}
