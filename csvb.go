@@ -2,11 +2,17 @@ package csvb
 
 import (
 	"encoding/csv"
+	"errors"
 	"github.com/oleiade/reflections"
 	"io"
 	"reflect"
 	"strconv"
 	"time"
+)
+
+var (
+	ErrNoCustomHeader = errors.New("missing custom header metadata")
+	ErrNoHeader       = errors.New("missing header metadata")
 )
 
 type Options struct {
@@ -27,7 +33,7 @@ type Row struct {
 	opts *Options
 }
 
-func NewBinder(reader io.Reader, opts *Options) *Binder {
+func NewBinder(reader io.Reader, opts *Options) (*Binder, error) {
 
 	csv := csv.NewReader(reader)
 
@@ -47,17 +53,27 @@ func NewBinder(reader io.Reader, opts *Options) *Binder {
 	var meta map[int]string
 
 	if len(opts.Header) == 0 {
-		header, _ := csv.Read()
+		header, err := csv.Read()
+
+		if err != nil {
+			return nil, err
+		}
 
 		meta = make(map[int]string)
 		for i, col := range header {
 			meta[i] = col
 		}
+		if len(meta) == 0 {
+			return nil, ErrNoHeader
+		}
 	} else {
 		meta = opts.Header
+		if len(meta) == 0 {
+			return nil, ErrNoCustomHeader
+		}
 	}
 
-	return &Binder{csv: csv, meta: meta, opts: opts}
+	return &Binder{csv: csv, meta: meta, opts: opts}, nil
 }
 
 func (b *Binder) ReadRow() (Row, error) {

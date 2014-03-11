@@ -108,7 +108,9 @@ func runScenarioWithOptions(t *testing.T, input [][]string, s map[string]string,
 		opts = &Options{NullMarker: "NULL"}
 	}
 
-	b := NewBinder(&buf, opts)
+	b, err := NewBinder(&buf, opts)
+	assert.NoError(t, err)
+
 	b.ForEach(func(r Row) (bool, error) {
 		if err := r.Bind(&d, s); err != nil {
 			return false, err
