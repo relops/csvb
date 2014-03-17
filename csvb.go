@@ -97,14 +97,12 @@ func (b *Binder) ReadRow() (Row, error) {
 }
 
 func (b *Binder) ForEach(f func(Row) (bool, error)) error {
-	fmt.Println("1")
 	for {
 		row, err := b.ReadRow()
 		if err == io.EOF {
 			break
 		} else if err != nil {
-			fmt.Printf("ForEach: %s", err)
-			return fmt.Errorf("Could not process row: %v (%s)", row, err)
+			return err
 		}
 		hasNext, err := f(row)
 		if err != nil {
