@@ -16,6 +16,23 @@ type Destination struct {
 	Rating  *inf.Dec
 }
 
+func TestVariableLengthFields(t *testing.T) {
+	header := []string{"n", "d", "c", "x"}
+	row := []string{"foo", "2014-04-06 10:02:21", "9834"}
+	input := [][]string{header, row}
+	s := make(map[string]string)
+	s["n"] = "Name"
+	s["d"] = "Date"
+	s["c"] = "Counter"
+	d := Destination{
+		Name:    "foo",
+		Counter: 9834,
+		Date:    time.Date(2014, 4, 6, 10, 02, 21, 0, time.UTC),
+	}
+	runScenario(t, input, s, d)
+
+}
+
 func TestCustomHeader(t *testing.T) {
 	header := map[int]string{
 		0: "n",

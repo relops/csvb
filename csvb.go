@@ -40,6 +40,7 @@ type Row struct {
 func NewBinder(reader io.Reader, opts *Options) (*Binder, error) {
 
 	csv := csv.NewReader(reader)
+	csv.FieldsPerRecord = -1
 
 	if opts == nil {
 		opts = &Options{}
@@ -96,13 +97,14 @@ func (b *Binder) ReadRow() (Row, error) {
 }
 
 func (b *Binder) ForEach(f func(Row) (bool, error)) error {
-
+	fmt.Println("1")
 	for {
 		row, err := b.ReadRow()
 		if err == io.EOF {
 			break
 		} else if err != nil {
-			return err
+			fmt.Printf("ForEach: %s", err)
+			return fmt.Errorf("Could not process row: %v (%s)", row, err)
 		}
 		hasNext, err := f(row)
 		if err != nil {
