@@ -9,6 +9,7 @@ import (
 	"reflect"
 	"speter.net/go/exp/math/dec/inf"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -24,6 +25,7 @@ type Options struct {
 	NullMarker string
 	TimeZone   *time.Location
 	Header     map[int]string
+	StripBOM   bool
 }
 
 type Binder struct {
@@ -66,6 +68,10 @@ func NewBinder(reader io.Reader, opts *Options) (*Binder, error) {
 
 		meta = make(map[int]string)
 		for i, col := range header {
+			if opts.StripBOM && i == 0 {
+				// Remove BOM
+				col = strings.Replace(col, "\ufeff", "", -1)
+			}
 			meta[i] = col
 		}
 		if len(meta) == 0 {
