@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/csv"
 	"github.com/stretchr/testify/assert"
-	"speter.net/go/exp/math/dec/inf"
+	"gopkg.in/inf.v0"
 	"testing"
 	"time"
 )
