@@ -7,7 +7,7 @@ import (
 	"github.com/oleiade/reflections"
 	"io"
 	"reflect"
-	"speter.net/go/exp/math/dec/inf"
+	"gopkg.in/inf.v0"
 	"strconv"
 	"strings"
 	"time"
